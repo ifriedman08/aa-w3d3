@@ -1,0 +1,31 @@
+puts 'Input your email:'
+
+user_email = gets.chomp
+if User.exists?(email: user_email)
+  user = User.where(email: user_email).first
+else
+  user = User.create!(email: user_email)
+end
+
+puts 'select from the following actions:
+0. Create shortened URL
+1. Visit shortened URL'
+
+option = gets.chomp.to_i
+
+case option
+when 0
+  puts "Type in your long URL: "
+  long_url = gets.chomp
+  raise "hell" if ShortenedUrl.exists?(long_url: long_url)
+  # byebug
+  short_url = ShortenedUrl.create_for_user_and_long_url!(user, long_url)
+  puts "Short URL is: #{short_url.short_url}"
+when 1
+  puts "Type in your shortened URL: "
+  short_url = gets.chomp
+  short_url = ShortenedUrl.where(short_url: short_url).first
+  long_url = short_url.long_url
+  Visit.record_visit!(user, short_url)
+  system ("launchy #{long_url}")
+end
